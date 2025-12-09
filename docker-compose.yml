@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    command: uvicorn main:app --host 0.0.0.0 --port 8200
+    volumes:
+      - ./logs:/logs # Assuming this dir exists on host
+    ports:
+      - "8200:8200"
+    environment:
+      - bom_api_key=${bom_api_key}
+      - bom_base_url=${bom_base_url}
+      - log_file=bom_wrapper.log
+      - telegram_bot_token=${telegram_bot_token}
+      - telegram_chat_id=${telegram_chat_id}
+
+  # fluent-bit:
+  #   image: fluent/fluent-bit:latest
+  #   container_name: fluent-bit
+  #   volumes:
+  #     - /opt/logflow/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+  #     - /opt/logflow/fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf
+  #     - ./logs:/filelogs
+  #   depends_on:
+  #     - api
+  #   environment:
+  #     - LOGFLOW_API_KEY=${LOGFLOW_API_KEY}
+  #     - LOGFLOW_API_HOST=${LOGFLOW_API_HOST}
+  #     - LOGFLOW_API_PORT=${LOGFLOW_API_PORT}
