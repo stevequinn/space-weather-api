@@ -1,0 +1,16 @@
+meta {
+  name: get-mag-alert
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{base_url}}/get-mag-alert
+  body: json
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

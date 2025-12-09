@@ -1,0 +1,15 @@
+meta {
+  name: check-aurora-storm
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/check-aurora-storm
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

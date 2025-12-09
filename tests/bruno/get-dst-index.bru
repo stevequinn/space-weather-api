@@ -1,0 +1,16 @@
+meta {
+  name: get-dst-index
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{base_url}}/get-dst-index
+  body: json
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

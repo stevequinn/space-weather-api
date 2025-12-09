@@ -1,0 +1,139 @@
+2025-12-09 10:21:08,185 - INFO - INCOMING: GET / - Status: 404 - Duration: 0.0004s
+2025-12-09 10:21:08,409 - INFO - INCOMING: GET /favicon.ico - Status: 404 - Duration: 0.0006s
+2025-12-09 10:21:20,824 - INFO - INCOMING: GET /health - Status: 200 - Duration: 0.0094s
+2025-12-09 10:21:36,104 - INFO - INCOMING: GET /check-aurora-storm - Status: 404 - Duration: 0.0006s
+2025-12-09 10:21:52,908 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 10:21:53,592 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":1,"valid_time":"2025-12-08 21:00:00","analysis_time":"2025-12-08 23:18:10"}]}...
+2025-12-09 10:21:53,594 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 0.7403s
+2025-12-09 10:22:31,017 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 10:22:31,738 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":1,"valid_time":"2025-12-08 21:00:00","analysis_time":"2025-12-08 23:18:10"}]}...
+2025-12-09 10:22:31,741 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 0.7541s
+2025-12-09 10:23:43,419 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 10:23:44,053 - INFO - INCOMING RESPONSE (BOM): 200 | Body: <Response [200 OK]>
+2025-12-09 10:23:44,054 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 0.6714s
+2025-12-09 10:23:44,139 - INFO - INCOMING: GET /favicon.ico - Status: 404 - Duration: 0.0006s
+2025-12-09 10:25:07,065 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 10:25:07,822 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":1,"valid_time":"2025-12-08 21:00:00","analysis_time":"2025-12-08 23:18:10"}]}
+2025-12-09 10:25:07,824 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 0.8035s
+2025-12-09 10:25:07,924 - INFO - INCOMING: GET /favicon.ico - Status: 404 - Duration: 0.0004s
+2025-12-09 10:26:05,294 - INFO - INCOMING: GET /get_aurora_notice - Status: 404 - Duration: 0.0014s
+2025-12-09 10:26:16,193 - INFO - INCOMING: GET /get-aurora-notice - Status: 405 - Duration: 0.0006s
+2025-12-09 10:27:09,850 - INFO - INCOMING: GET /get-aurora-notice - Status: 422 - Duration: 0.0097s
+2025-12-09 10:27:09,956 - INFO - INCOMING: GET /favicon.ico - Status: 404 - Duration: 0.0004s
+2025-12-09 10:39:36,268 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 10:39:37,284 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":1,"valid_time":"2025-12-08 21:00:00","analysis_time":"2025-12-08 23:29:29"}]}
+2025-12-09 10:39:37,287 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 1.0902s
+2025-12-09 10:40:39,431 - INFO - INCOMING: POST /get-aurora-notice - Status: 405 - Duration: 0.0010s
+2025-12-09 10:48:04,765 - INFO - INCOMING: POST /get-aurora-alert - Status: 422 - Duration: 0.0082s
+2025-12-09 10:51:24,265 - INFO - INCOMING: POST /get-aurora-alert - Status: 422 - Duration: 0.0048s
+2025-12-09 10:51:48,840 - INFO - INCOMING: POST /get-aurora-watch - Status: 422 - Duration: 0.0015s
+2025-12-09 10:51:53,900 - INFO - INCOMING: POST /get-aurora-alert - Status: 422 - Duration: 0.0013s
+2025-12-09 10:52:04,004 - INFO - INCOMING: POST /get-k-index - Status: 422 - Duration: 0.0019s
+2025-12-09 10:52:10,421 - INFO - INCOMING: POST /get-aurora-alert - Status: 422 - Duration: 0.0014s
+2025-12-09 10:53:23,326 - INFO - INCOMING: POST /get-mag-alert - Status: 422 - Duration: 0.0050s
+2025-12-09 10:57:59,104 - INFO - INCOMING: POST /get-mag-alert - Status: 422 - Duration: 0.0085s
+2025-12-09 10:58:15,257 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-mag-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 10:58:15,836 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 10:58:15,838 - INFO - INCOMING: POST /get-mag-alert - Status: 200 - Duration: 0.6259s
+2025-12-09 10:59:14,226 - INFO - INCOMING: POST /get-mag-alert - Status: 422 - Duration: 0.0027s
+2025-12-09 11:09:40,727 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:09:41,723 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:09:41,724 - INFO - INCOMING: POST /get-aurora-alert - Status: 200 - Duration: 1.0520s
+2025-12-09 11:13:19,531 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:13:21,167 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:13:21,169 - INFO - INCOMING: POST /get-aurora-alert - Status: 200 - Duration: 1.6980s
+2025-12-09 11:13:45,718 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:13:46,341 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 11:13:46,342 - INFO - INCOMING: POST /get-aurora-watch - Status: 200 - Duration: 0.6440s
+2025-12-09 11:14:04,374 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:14:04,896 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:14:04,897 - INFO - INCOMING: POST /get-aurora-outlook - Status: 200 - Duration: 0.5551s
+2025-12-09 11:14:22,258 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"location": "Australian region", "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:14:22,713 - INFO - INCOMING RESPONSE (BOM): 400 | Body: {"errors":[{"code":31,"message":"Missing field: options"}]}
+2025-12-09 11:14:22,714 - ERROR - BOM API Error: {"errors":[{"code":31,"message":"Missing field: options"}]}
+2025-12-09 11:14:22,715 - INFO - INCOMING: POST /get-k-index - Status: 400 - Duration: 0.4712s
+2025-12-09 11:14:41,300 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"location": "Australian region", "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:14:41,763 - INFO - INCOMING RESPONSE (BOM): 400 | Body: {"errors":[{"code":31,"message":"Missing field: options"}]}
+2025-12-09 11:14:41,764 - ERROR - BOM API Error: {"errors":[{"code":31,"message":"Missing field: options"}]}
+2025-12-09 11:14:41,765 - INFO - INCOMING: POST /get-k-index - Status: 400 - Duration: 0.4830s
+2025-12-09 11:16:17,076 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:16:17,747 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":1,"valid_time":"2025-12-08 21:00:00","analysis_time":"2025-12-09 00:08:06"}]}
+2025-12-09 11:16:17,749 - INFO - INCOMING: POST /get-k-index - Status: 200 - Duration: 0.7122s
+2025-12-09 11:17:01,538 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:17:02,258 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":1,"valid_time":"2025-12-08 21:00:00","analysis_time":"2025-12-09 00:08:06"}]}
+2025-12-09 11:17:02,259 - INFO - INCOMING: POST /get-k-index - Status: 200 - Duration: 0.7690s
+2025-12-09 11:17:22,428 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-a-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:17:23,147 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[[{"index":"6","valid_time":"2025-12-07 00:00:00"}]]}
+2025-12-09 11:17:23,148 - INFO - INCOMING: POST /get-a-index - Status: 200 - Duration: 0.7408s
+2025-12-09 11:17:45,268 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-dst-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:17:47,314 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[[{"index":"-21","valid_time":"2025-12-08 23:55:00"}]]}
+2025-12-09 11:17:47,315 - INFO - INCOMING: POST /get-dst-index - Status: 200 - Duration: 2.0652s
+2025-12-09 11:18:07,034 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-mag-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:18:07,487 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:18:07,490 - INFO - INCOMING: POST /get-mag-alert - Status: 200 - Duration: 0.4746s
+2025-12-09 11:18:26,335 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-mag-warning | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:18:27,046 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-06 22:58:00","start_date":"2025-12-09","end_date":"2025-12-10","cause":"coronal mass ejection","activity":[{"date":"2025-12-09","forecast":"G3"},{"date":"2025-12-10","forecast":"G0-G1"}]}]}
+2025-12-09 11:18:27,047 - INFO - INCOMING: POST /get-mag-warning - Status: 200 - Duration: 0.7280s
+2025-12-09 11:19:22,099 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:19:22,650 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:19:22,651 - INFO - INCOMING: POST /get-aurora-alert - Status: 200 - Duration: 0.5703s
+2025-12-09 11:19:25,418 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:19:26,131 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 11:19:26,132 - INFO - INCOMING: POST /get-aurora-watch - Status: 200 - Duration: 0.7278s
+2025-12-09 11:19:28,139 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:19:28,589 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:19:28,589 - INFO - INCOMING: POST /get-aurora-outlook - Status: 200 - Duration: 0.4638s
+2025-12-09 11:19:41,859 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:19:42,618 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 11:19:42,619 - INFO - INCOMING: POST /get-aurora-watch - Status: 200 - Duration: 0.7742s
+2025-12-09 11:28:06,127 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:28:07,204 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:28:07,205 - INFO - INCOMING: POST /get-aurora-alert - Status: 200 - Duration: 1.1150s
+2025-12-09 11:28:10,738 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:28:11,401 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 11:28:11,403 - INFO - INCOMING: POST /get-aurora-watch - Status: 200 - Duration: 0.6815s
+2025-12-09 11:28:13,363 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:28:14,987 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:28:14,988 - INFO - INCOMING: POST /get-aurora-outlook - Status: 200 - Duration: 1.6391s
+2025-12-09 11:28:16,514 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:28:17,136 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 00:00:00","analysis_time":"2025-12-09 00:20:14"}]}
+2025-12-09 11:28:17,137 - INFO - INCOMING: POST /get-k-index - Status: 200 - Duration: 0.6431s
+2025-12-09 11:28:18,674 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-a-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:28:19,285 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[[{"index":"6","valid_time":"2025-12-07 00:00:00"}]]}
+2025-12-09 11:28:19,286 - INFO - INCOMING: POST /get-a-index - Status: 200 - Duration: 0.6305s
+2025-12-09 11:28:21,139 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-dst-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:28:21,846 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[[{"index":"-19","valid_time":"2025-12-09 00:05:00"}]]}
+2025-12-09 11:28:21,847 - INFO - INCOMING: POST /get-dst-index - Status: 200 - Duration: 0.7219s
+2025-12-09 11:28:23,505 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-mag-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:28:23,997 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:28:23,999 - INFO - INCOMING: POST /get-mag-alert - Status: 200 - Duration: 0.5188s
+2025-12-09 11:28:25,308 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:28:25,709 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:28:25,711 - INFO - INCOMING: POST /get-aurora-alert - Status: 200 - Duration: 0.4162s
+2025-12-09 11:28:29,005 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-mag-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:28:29,424 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:28:29,426 - INFO - INCOMING: POST /get-mag-alert - Status: 200 - Duration: 0.4356s
+2025-12-09 11:28:31,503 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:28:31,891 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:28:31,893 - INFO - INCOMING: POST /get-aurora-alert - Status: 200 - Duration: 0.4017s
+2025-12-09 11:29:17,902 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:29:18,680 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 11:29:18,682 - INFO - INCOMING: POST /get-aurora-watch - Status: 200 - Duration: 0.7975s
+2025-12-09 11:29:21,391 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:29:21,855 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:29:21,857 - INFO - INCOMING: POST /get-aurora-alert - Status: 200 - Duration: 0.4824s
+2025-12-09 11:29:23,830 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:29:24,313 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 11:29:24,314 - INFO - INCOMING: POST /get-aurora-outlook - Status: 200 - Duration: 0.5027s
+2025-12-09 11:29:25,872 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:29:26,565 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 11:29:26,567 - INFO - INCOMING: POST /get-aurora-watch - Status: 200 - Duration: 0.7074s
+2025-12-09 11:30:11,733 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:30:13,467 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 00:00:00","analysis_time":"2025-12-09 00:20:14"}]}
+2025-12-09 11:30:13,471 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 1.7618s
+2025-12-09 11:30:23,140 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:30:23,809 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 00:00:00","analysis_time":"2025-12-09 00:29:14"}]}
+2025-12-09 11:30:23,811 - INFO - INCOMING: POST /get-k-index - Status: 200 - Duration: 0.6876s
+2025-12-09 11:30:31,560 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 11:30:32,203 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 00:00:00","analysis_time":"2025-12-09 00:29:14"}]}
+2025-12-09 11:30:32,204 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 0.6579s

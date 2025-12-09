@@ -1,0 +1,16 @@
+meta {
+  name: get-k-index
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/get-k-index
+  body: json
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

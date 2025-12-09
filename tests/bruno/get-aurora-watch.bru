@@ -1,0 +1,16 @@
+meta {
+  name: get-aurora-watch
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/get-aurora-watch
+  body: json
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "space_weather_api_wrapper_bruno",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

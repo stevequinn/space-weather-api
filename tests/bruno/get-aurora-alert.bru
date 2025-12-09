@@ -1,0 +1,16 @@
+meta {
+  name: get-aurora-alert
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/get-aurora-alert
+  body: json
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

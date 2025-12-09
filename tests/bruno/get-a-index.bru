@@ -1,0 +1,16 @@
+meta {
+  name: get-a-index
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{base_url}}/get-a-index
+  body: json
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
