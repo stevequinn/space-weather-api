@@ -1,39 +1,35 @@
-# main.py
 import asyncio
-import json
-import os
-import time
-from typing import Any, Optional
+from contextlib import asynccontextmanager
+from typing import Optional
 
 import httpx
-from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
-from pydantic import BaseModel, Field
+from fastapi import Depends, FastAPI, HTTPException, Request
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 
 from logger_config import logger
 
-load_dotenv()
 
-app = FastAPI(title="BOM Space Weather Wrapper")
+# --- 1. Configuration (Type-Safe) ---
+class Settings(BaseSettings):
+    bom_api_key: str
+    bom_base_url: str
+    telegram_bot_token: Optional[str] = None
+    telegram_chat_id: Optional[str] = None
+    log_file: str = "bom_wrapper.log"
 
-BOM_API_KEY = os.getenv("BOM_API_KEY")
-BOM_BASE_URL = os.getenv("BOM_BASE_URL")
-SEND_TELEGRAM_ALERTS = os.getenv("SEND_TELEGRAM_ALERTS", "false").lower() == "true"
-TIMEZONE = os.getenv("TIMEZONE", "Australia/Sydney")
-
-
-# --- Pydantic Models ---
-class BaseOptions(BaseModel):
-    # 'options' is a flexible dictionary in the BOM API,
-    # but usually contains 'location', 'start', 'end'.
-    options: dict[str, Any] = Field(default_factory=dict)
+    class Config:
+        env_file = ".env"
 
 
+settings = Settings()
+
+
+# --- 2. Pydantic Models (Data Layer) ---
 class KIndexData(BaseModel):
     value: int
     threshold_met: bool
     timestamp: Optional[str] = None
-    # 'error' is optional because it only appears if the fetch fails
     error: Optional[str] = None
 
 
@@ -43,7 +39,6 @@ class AuroraEvent(BaseModel):
     description: Optional[str] = None
     valid_until: Optional[str] = None
     cause: Optional[str] = None
-    comments: Optional[str] = None
     start_date: Optional[str] = None
 
 
@@ -51,296 +46,217 @@ class AuroraCheckResponse(BaseModel):
     summary: str
     active: bool
     k_index: KIndexData
-    # These fields are optional because they are None when no event is active
     alert: Optional[AuroraEvent] = None
     watch: Optional[AuroraEvent] = None
     outlook: Optional[AuroraEvent] = None
 
 
-# --- 1. Middleware to Log Incoming Requests to YOUR Wrapper ---
+# --- 3. Lifespan & State Management ---
+# This dictionary will hold our shared resources (like the HTTP client)
+resources = {}
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Create a single client with a timeout
+    logger.info("Starting up: Initializing HTTP Client...")
+    resources["client"] = httpx.AsyncClient(
+        base_url=settings.bom_base_url,
+        timeout=10.0,
+        headers={"Content-Type": "application/json"},  # Default headers
+    )
+    yield
+    # Shutdown: Clean up resources
+    logger.info("Shutting down: Closing HTTP Client...")
+    await resources["client"].aclose()
+
+
+app = FastAPI(title="BOM Space Weather Wrapper", lifespan=lifespan)
+
+# --- 4. Services (Business Logic Layer) ---
+
+
+class NotificationService:
+    """Handles logic for sending alerts externally."""
+
+    @staticmethod
+    async def send_telegram(message: str):
+        if not settings.telegram_bot_token:
+            return
+
+        url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage"
+        payload = {"chat_id": settings.telegram_chat_id, "text": message}
+
+        try:
+            # We use a standard httpx call here, separate from the BOM client usually
+            # But for simplicity, we can just use a quick one-off or the shared one if base_url allows
+            async with httpx.AsyncClient() as tg_client:
+                await tg_client.post(url, json=payload)
+                logger.info("Telegram alert sent successfully.")
+        except Exception as e:
+            logger.error(f"Failed to send Telegram alert: {e}")
+
+
+class AuroraService:
+    """Encapsulates BOM interaction logic."""
+
+    def __init__(self, client: httpx.AsyncClient):
+        self.client = client
+
+    async def _fetch(self, endpoint: str, payload: dict) -> dict | Exception:
+        """Internal helper to fetch data safely."""
+        # Inject API Key automatically
+        final_payload = {**payload, "api_key": settings.bom_api_key}
+
+        try:
+            logger.info(f"FETCH: {self.client.base_url}{endpoint}")
+            resp = await self.client.post(endpoint, json=final_payload)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as e:
+            logger.error(f"Error fetching {endpoint}: {str(e)}")
+            return e
+
+    def _extract_data(
+        self, response: dict | BaseException, field_map: dict
+    ) -> Optional[dict]:
+        """Maps BOM response to our clean dict structure."""
+        if isinstance(response, BaseException) or not response.get("data"):
+            return None
+
+        item = response["data"][0]
+        return {target: item.get(source) for target, source in field_map.items()}
+
+    async def get_check_status(self, send_telegram_alert: bool) -> AuroraCheckResponse:
+        # 1. Parallel Fetching
+        results = await asyncio.gather(
+            self._fetch("get-k-index", {"options": {"location": "Australian region"}}),
+            self._fetch("get-aurora-alert", {}),
+            self._fetch("get-aurora-watch", {}),
+            self._fetch("get-aurora-outlook", {}),
+            return_exceptions=True,
+        )
+
+        # Unpack results (gather ensures order matches input)
+        raw_k, raw_alert, raw_watch, raw_outlook = results
+
+        # 2. Process K-Index
+        k_data = {"value": 0, "threshold_met": False, "error": None}
+        if not isinstance(raw_k, BaseException) and raw_k.get("data"):
+            latest = raw_k["data"][0]
+            val = int(latest.get("index", 0))
+            k_data = {
+                "value": val,
+                "threshold_met": val >= 5,
+                "timestamp": latest.get("valid_time"),
+            }
+        else:
+            k_data["error"] = "Failed to fetch K-Index"
+
+        # 3. Process Events
+        alert = self._extract_data(
+            raw_alert,
+            {
+                "k_aus": "k_aus",
+                "description": "description",
+                "valid_until": "valid_until",
+                "lat_band": "lat_band",
+            },
+        )
+        watch = self._extract_data(
+            raw_watch,
+            {
+                "k_aus": "k_aus",
+                "cause": "cause",
+                "description": "comments",
+                "start_date": "start_date",
+            },
+        )
+        outlook = self._extract_data(
+            raw_outlook,
+            {
+                "k_aus": "k_aus",
+                "cause": "cause",
+                "description": "comments",
+                "start_date": "start_date",
+            },
+        )
+
+        # 4. Logic & Alerting
+        is_active = k_data["threshold_met"] or (alert is not None)
+
+        summary = "No significant activity."
+        if is_active:
+            summary = f"Aurora Likely! (K-Index: {k_data['value']})"
+        elif watch:
+            summary = "Aurora Watch in effect (next 48h)"
+
+        # Construct Response Object
+        response_model = AuroraCheckResponse(
+            summary=summary,
+            active=is_active,
+            k_index=KIndexData(**k_data),
+            alert=AuroraEvent(**alert) if alert else None,
+            watch=AuroraEvent(**watch) if watch else None,
+            outlook=AuroraEvent(**outlook) if outlook else None,
+        )
+
+        # 5. Handle Notifications (Fire and Forget task)
+        if send_telegram_alert and (is_active or watch):
+            api_comments = ""
+            if alert:
+                api_comments = alert.get("description", "")
+            elif watch:
+                api_comments = watch.get("description", "")
+
+            msg = f"AURORA ALERT: {summary}\n\n{api_comments}\n\nCurrent K-Index: {k_data['value']}"
+            asyncio.create_task(NotificationService.send_telegram(msg))
+
+        return response_model
+
+
+# --- 5. Dependencies ---
+def get_aurora_service() -> AuroraService:
+    """Dependency injection for the service."""
+    if "client" not in resources:
+        raise HTTPException(status_code=503, detail="Client not initialized")
+    return AuroraService(resources["client"])
+
+
+# --- 6. Endpoints ---
+
+
 @app.middleware("http")
-async def log_middleware(request: Request, call_next):
-    start_time = time.time()
-
-    # Process the request
+async def performance_logger(request: Request, call_next):
+    start = asyncio.get_event_loop().time()
     response = await call_next(request)
-
-    process_time = time.time() - start_time
+    duration = asyncio.get_event_loop().time() - start
     logger.info(
-        f"INCOMING: {request.method} {request.url.path} - "
-        f"Status: {response.status_code} - "
-        f"Duration: {process_time:.4f}s"
+        f"{request.method} {request.url.path} - {response.status_code} - {duration:.4f}s"
     )
     return response
 
 
-# --- Helper: Async Client with Logging for OUTGOING requests ---
-async def fetch_from_bom(endpoint: str, payload: dict[str, Any]):
-    """
-    Sends a request to BOM.
-    NOTE: BOM SWS API usually requires POST for data retrieval with the API key in the body.
-    """
-    url = f"{BOM_BASE_URL}/{endpoint}"
-
-    # Ensure API Key is present in payload
-    if "api_key" not in payload:
-        payload["api_key"] = BOM_API_KEY
-
-    async with httpx.AsyncClient() as client:
-        logger.info(f"OUTGOING REQUEST: POST {url} | Payload: {json.dumps(payload)}")
-
-        try:
-            resp = await client.post(url, json=payload, timeout=10.0)
-
-            # Log the full response text for debugging/history
-            logger.info(
-                f"INCOMING RESPONSE (BOM): {resp.status_code} | Body: {resp.text}"
-            )  # Truncated log
-
-            resp.raise_for_status()
-            return resp.json()
-        except httpx.HTTPStatusError as e:
-            logger.error(f"BOM API Error: {e.response.text}")
-            raise HTTPException(
-                status_code=e.response.status_code, detail="BOM API Error"
-            )
-        except Exception as e:
-            logger.error(f"Connection Error: {str(e)}")
-            raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-def extract_bom_data(
-    response_data: dict | BaseException, field_map: dict[str, str]
-) -> Optional[dict]:
-    """
-    Extracts and maps fields from the first item of a BOM response list.
-
-    Args:
-        response_data: The JSON response from BOM (or an Exception object if the request failed).
-        field_map: A dictionary mapping { "our_output_name": "bom_api_field_name" }
-
-    Returns:
-        A dictionary of mapped data if an event is active, otherwise None.
-    """
-    # 1. Handle API failures gracefully (if asyncio.gather returned an exception)
-    if isinstance(response_data, Exception):
-        logger.error(f"Skipping data extraction due to API error: {response_data}")
-        return None
-
-    # 2. Check structure
-    data_list = response_data.get("data", [])
-    if not data_list:
-        return None
-
-    # 3. Extract and Map
-    # BOM returns arrays; we usually care about the most recent/current one (index 0)
-    item = data_list[0]
-
-    return {
-        target_key: item.get(source_key) for target_key, source_key in field_map.items()
-    }
-
-
-# --- 2. The 'Aurora Check' Endpoint (Optimized for Cron Job) ---
 @app.get("/check-aurora-storm", response_model=AuroraCheckResponse)
-async def check_aurora():
+async def check_aurora(
+    send_telegram_alert: bool = False,
+    service: AuroraService = Depends(get_aurora_service),
+):
     """
-    Aggregates K-Index, Alerts, Watches, and Outlooks into a single status report.
-    Executes 4 BOM API calls in parallel.
-    If configured, sends Telegram alerts for significant auroral activity.
-    1. K-Index >= 5 indicates high aurora probability.
-    2. Active Alerts indicate current geomagnetic activity.
-    3. Watches indicate likely activity in next 48 hours.
-    4. Outlooks indicate likely activity in 3-7 days.
-    5. Summary message indicates overall auroral activity status.
-    6. Logs significant events for monitoring.
-    7. Designed for periodic execution (e.g., via cron) to monitor auroral
+    Optimized endpoint that delegates logic to AuroraService.
+    Checks for aurora storm conditions and returns structured data.
+    1. Fetches K-Index, Aurora Alerts, Watches, and Outlooks in parallel.
+    2. Processes and determines if aurora conditions are met.
+    3. Sends Telegram alerts if conditions are met and configured.
+    4. Returns a comprehensive response with all relevant data.
+    5. Logs performance metrics for monitoring.
     """
-    # 1. Define the 4 independent tasks
-    task_k_index = fetch_from_bom(
-        "get-k-index", {"options": {"location": "Australian region"}}
-    )
-    task_alert = fetch_from_bom("get-aurora-alert", {})
-    task_watch = fetch_from_bom("get-aurora-watch", {})
-    task_outlook = fetch_from_bom("get-aurora-outlook", {})
-
-    # 2. Run them in parallel (Concurrency)
-    # return_exceptions=True prevents one failed API call from crashing the whole request
-    results = await asyncio.gather(
-        task_k_index, task_alert, task_watch, task_outlook, return_exceptions=True
-    )
-
-    res_k, res_alert, res_watch, res_outlook = results
-
-    # 3. Process K-Index (Current Conditions)
-    k_data = {}
-    is_storm_k = False
-
-    if not isinstance(res_k, BaseException) and res_k.get("data"):
-        latest = res_k["data"][0]
-        k_val = int(latest.get("index", 0))
-        is_storm_k = k_val >= 5
-        k_data = {
-            "value": k_val,
-            "threshold_met": is_storm_k,
-            "timestamp": latest.get("valid_time"),
-        }
-    else:
-        k_data = {"error": "Could not fetch K-Index"}
-
-    # 4. Process Events (Alert, Watch, Outlook) using DRY Helper
-    # We define what fields we want to keep and rename them to be consistent
-
-    current_alert = extract_bom_data(
-        res_alert,
-        {
-            "k_aus": "k_aus",
-            "description": "description",
-            "valid_until": "valid_until",
-            "lat_band": "lat_band",
-        },
-    )
-
-    upcoming_watch = extract_bom_data(
-        res_watch,
-        {
-            "k_aus": "k_aus",
-            "cause": "cause",
-            "comments": "comments",
-            "start_date": "start_date",
-        },
-    )
-
-    future_outlook = extract_bom_data(
-        res_outlook,
-        {
-            "k_aus": "k_aus",  # Note: field might be missing in outlooks sometimes
-            "cause": "cause",
-            "comments": "comments",
-            "start_date": "start_date",
-        },
-    )
-
-    # 5. Determine Global Status
-    # We flag "Auroral Activity" if K-index is high OR there is an active Alert.
-    aurora_active = is_storm_k or (current_alert is not None)
-
-    summary_msg = "No significant activity."
-
-    if aurora_active:
-        summary_msg = f"Aurora Likely! (K-Index: {k_data.get('value')})."
-    elif current_alert:
-        summary_msg = "Aurora Alert in effect!"
-    elif upcoming_watch:
-        summary_msg = "Aurora Watch in effect (next 48h)."
-
-    if SEND_TELEGRAM_ALERTS:
-        telegram_msg = None
-        if aurora_active:
-            telegram_msg = f"Aurora Likely! (K-Index: {k_data.get('value')})"
-        if current_alert:
-            telegram_msg = f"""{telegram_msg}
-            Aurora Alert in effect!
-            {current_alert.get("description")}"""
-        elif upcoming_watch:
-            telegram_msg = f"""Aurora Watch in effect (next 48h).
-            Expected level of activity: {upcoming_watch.get("k_aus")}
-
-            {upcoming_watch.get("comments")}"""
-
-        if telegram_msg:
-            logger.info(f"TELEGRAM MESSAGE:\n{telegram_msg}")
-
-    if aurora_active:
-        logger.warning(f"AURORA ACTIVE: {json.dumps(k_data)}")
-
-    return {
-        "summary": summary_msg,
-        "active": aurora_active,
-        "k_index": k_data,
-        "alert": current_alert,  # None if no alert
-        "watch": upcoming_watch,  # None if no watch
-        "outlook": future_outlook,  # None if no outlook
-    }
+    return await service.get_check_status(send_telegram_alert=send_telegram_alert)
 
 
-# --- Proxy Endpoints Endpoints Disabled ---
-
-
-# @app.post("/get-aurora-alert")
-# async def get_aurora_notice():
-#     """
-#     Requests details of any aurora alert current for the Australian region.
-#     Aurora alerts are used to report geomagnetic activity currently in progress and favourable for auroras.
-#     """
-#     return await fetch_from_bom("get-aurora-alert", {})
-
-
-# @app.post("/get-aurora-watch")
-# async def get_aurora_watch():
-#     """
-#     Requests details of any aurora watch current for the Australian region.
-#     Aurora watches are used to warn of likely auroral activity in the next 48 hours.
-#     """
-#     return await fetch_from_bom("get-aurora-watch", {})
-
-
-# @app.post("/get-aurora-outlook")
-# async def get_aurora_outlook():
-#     """
-#     Requests details of any aurora outlook current for the Australian region.
-#     Aurora outlooks are used to warn of likely auroral activity 3-7 days hence.
-#     """
-#     return await fetch_from_bom("get-aurora-outlook", {})
-
-
-# @app.post("/get-k-index")
-# async def get_k_index(body: Optional[BaseOptions] = Body(default=None)):
-#     """
-#     Get the K-Index (Geomagnetic activity).
-#     High K-index (>= 5) indicates high aurora probability.
-#     """
-#     # Default location to 'Australian region' if not provided
-#     opts = body.options if body is not None else {}
-#     if not opts.get("location"):
-#         opts["location"] = "Australian region"
-#     return await fetch_from_bom("get-k-index", {"options": opts})
-
-
-# @app.post("/get-a-index")
-# async def get_a_index(body: Optional[BaseOptions] = Body(default=None)):
-#     """Get the A-Index (Daily average geomagnetic activity)."""
-#     opts = body.options if body is not None else {}
-#     if not opts.get("location"):
-#         opts["location"] = "Australian region"
-#     return await fetch_from_bom("get-a-index", {"options": opts})
-
-
-# @app.post("/get-dst-index")
-# async def get_dst_index(body: Optional[BaseOptions] = Body(default=None)):
-#     """Get the Disturbance Storm Time (Dst) index."""
-#     opts = body.options if body is not None else {}
-#     if not opts.get("location"):
-#         opts["location"] = "Australian region"
-#     return await fetch_from_bom("get-dst-index", {"options": opts})
-
-
-# @app.post("/get-mag-alert")
-# async def get_magnetic_alert():
-#     """Get current magnetic alerts."""
-#     return await fetch_from_bom("get-mag-alert", {})
-
-
-# @app.post("/get-mag-warning")
-# async def get_geophysical_warning():
-#     """Get current magnetic warnings."""
-#     return await fetch_from_bom("get-mag-warning", {})
-
-
-# --- Health Check ---
 @app.get("/health")
 def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "client_ready": "client" in resources}
 
 
 if __name__ == "__main__":
