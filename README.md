@@ -33,6 +33,6 @@ Once the server is running, navigate to `http://localhost:8200/docs` to access t
 
 - [x] Implement Pydantic response_models
 - [x] Add telegram bot integration for alerts and define when alerts should be sent
-- Add Dockerfile for deployment including mounted volume for logs
+- [x] Add Dockerfile for deployment including mounted volume for logs
 - Deploy to portainer 
 - Configure fluent-bit on pi for shipping logs to my logflow service
