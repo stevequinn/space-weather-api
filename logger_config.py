@@ -1,21 +1,30 @@
 # logger_config.py
 import logging
+import os
 import sys
 from logging.handlers import RotatingFileHandler
-import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent
+LOG_DIR = BASE_DIR / "logs"
+
 
 def setup_logging():
-    log_filename = os.getenv("LOG_FILE", "bom_wrapper.log")
+    Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
+
+    log_filename = LOG_DIR / os.getenv("log_file", "bom_wrapper.log")
 
     # Create a custom logger
     logger = logging.getLogger("bom_api_wrapper")
     logger.setLevel(logging.INFO)
 
     # Format: Time - Level - Message
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
     # Handler 1: Write to file (rotate after 5MB)
-    file_handler = RotatingFileHandler(log_filename, maxBytes=5*1024*1024, backupCount=3)
+    file_handler = RotatingFileHandler(
+        log_filename, maxBytes=5 * 1024 * 1024, backupCount=3
+    )
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
@@ -25,5 +34,6 @@ def setup_logging():
     logger.addHandler(console_handler)
 
     return logger
+
 
 logger = setup_logging()
