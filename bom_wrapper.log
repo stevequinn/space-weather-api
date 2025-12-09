@@ -137,3 +137,110 @@
 2025-12-09 11:30:31,560 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
 2025-12-09 11:30:32,203 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 00:00:00","analysis_time":"2025-12-09 00:29:14"}]}
 2025-12-09 11:30:32,204 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 0.6579s
+2025-12-09 12:13:01,993 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 12:13:02,471 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 12:13:02,474 - INFO - INCOMING: POST /get-aurora-alert - Status: 200 - Duration: 0.5140s
+2025-12-09 12:13:05,902 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 12:13:06,623 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 12:13:06,624 - INFO - INCOMING: POST /get-aurora-watch - Status: 200 - Duration: 0.7388s
+2025-12-09 12:13:10,222 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 12:13:10,655 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 12:13:10,657 - INFO - INCOMING: POST /get-aurora-outlook - Status: 200 - Duration: 0.4496s
+2025-12-09 12:13:13,027 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 12:13:13,688 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 12:13:13,689 - INFO - INCOMING: POST /get-aurora-watch - Status: 200 - Duration: 0.6780s
+2025-12-09 14:15:06,145 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 14:15:07,354 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 03:00:00","analysis_time":"2025-12-09 03:09:15"}]}
+2025-12-09 14:15:07,357 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 1.2476s
+2025-12-09 14:15:12,351 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 14:15:13,003 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 03:00:00","analysis_time":"2025-12-09 03:09:15"}]}
+2025-12-09 14:15:13,007 - INFO - INCOMING: POST /get-k-index - Status: 200 - Duration: 0.6729s
+2025-12-09 14:15:18,319 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-a-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 14:15:18,929 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[[{"index":"2","valid_time":"2025-12-08 00:00:00"}]]}
+2025-12-09 14:15:18,930 - INFO - INCOMING: POST /get-a-index - Status: 200 - Duration: 0.6254s
+2025-12-09 14:15:21,705 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-dst-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 14:15:22,332 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[[{"index":"-14","valid_time":"2025-12-09 02:45:00"}]]}
+2025-12-09 14:15:22,334 - INFO - INCOMING: POST /get-dst-index - Status: 200 - Duration: 0.6446s
+2025-12-09 14:15:25,773 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 14:15:26,167 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 14:15:26,168 - INFO - INCOMING: POST /get-aurora-alert - Status: 200 - Duration: 0.4172s
+2025-12-09 14:15:28,449 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 14:15:29,085 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 14:15:29,087 - INFO - INCOMING: POST /get-aurora-watch - Status: 200 - Duration: 0.6513s
+2025-12-09 14:15:53,204 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 14:15:53,740 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 14:15:53,744 - INFO - INCOMING: POST /get-aurora-outlook - Status: 200 - Duration: 0.5502s
+2025-12-09 14:15:56,054 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 14:15:56,462 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 14:15:56,466 - INFO - INCOMING: POST /get-aurora-alert - Status: 200 - Duration: 0.4267s
+2025-12-09 14:15:58,438 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-mag-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 14:15:58,839 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 14:15:58,840 - INFO - INCOMING: POST /get-mag-alert - Status: 200 - Duration: 0.4165s
+2025-12-09 16:08:44,534 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:08:44,541 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:08:44,548 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:08:44,556 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:08:45,257 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 16:08:45,261 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 16:08:45,433 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 03:00:00","analysis_time":"2025-12-09 04:59:18"}]}
+2025-12-09 16:08:45,510 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 16:08:45,512 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 1.0158s
+2025-12-09 16:15:56,148 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:15:56,155 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:15:56,164 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:15:56,172 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:15:56,785 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 16:15:56,789 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 16:15:56,947 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 16:15:56,950 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 03:00:00","analysis_time":"2025-12-09 05:14:11"}]}
+2025-12-09 16:15:56,952 - INFO - TELEGRAM MESSAGE:
+Aurora Watch in effect (next 48h).
+        Expected level of activity: 6
+
+        A CME is expected to arrive early on UT day 9-Dec +/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours.
+2025-12-09 16:15:56,952 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 0.8410s
+2025-12-09 16:17:03,970 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:17:03,975 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:17:03,981 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:17:03,987 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:17:04,576 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 16:17:04,681 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 16:17:04,687 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 16:17:04,699 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 03:00:00","analysis_time":"2025-12-09 05:14:11"}]}
+2025-12-09 16:17:04,701 - INFO - TELEGRAM MESSAGE:
+Aurora Watch in effect (next 48h).
+        Expected level of activity: 6
+
+        A CME is expected to arrive early on UT day 9-Dec +/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours.
+2025-12-09 16:17:04,701 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 0.7703s
+2025-12-09 16:17:36,930 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:17:36,937 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:17:36,943 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:17:36,950 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:17:37,449 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 16:17:37,452 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 16:17:37,620 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 16:17:37,642 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":0,"valid_time":"2025-12-09 03:00:00","analysis_time":"2025-12-09 05:14:11"}]}
+2025-12-09 16:17:37,644 - INFO - TELEGRAM MESSAGE:
+Aurora Watch in effect (next 48h).
+        Expected level of activity: 6
+
+        A CME is expected to arrive early on UT day 9-Dec +/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours.
+2025-12-09 16:17:37,645 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 0.7435s
+2025-12-09 16:37:13,981 - INFO - INCOMING: GET / - Status: 404 - Duration: 0.0009s
+2025-12-09 16:37:18,133 - INFO - INCOMING: GET /docs - Status: 200 - Duration: 0.0007s
+2025-12-09 16:37:18,487 - INFO - INCOMING: GET /openapi.json - Status: 200 - Duration: 0.0276s
+2025-12-09 16:38:36,288 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-k-index | Payload: {"options": {"location": "Australian region"}, "api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:38:36,296 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-alert | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:38:36,305 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-watch | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:38:36,317 - INFO - OUTGOING REQUEST: POST https://sws-data.sws.bom.gov.au/api/v1/get-aurora-outlook | Payload: {"api_key": "8a011c2c-2260-40dc-ac11-7f824730baf2"}
+2025-12-09 16:38:37,016 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 16:38:37,020 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[]}
+2025-12-09 16:38:37,128 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"issue_time":"2025-12-08 06:46:56","start_date":"2025-12-09","end_date":"2025-12-09","cause":"CME","k_aus":"6","lat_band":"high","comments":"A CME is expected to arrive early on UT day 9-Dec +\/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours."}]}
+2025-12-09 16:38:37,131 - INFO - INCOMING RESPONSE (BOM): 200 | Body: {"data":[{"index":1,"valid_time":"2025-12-09 03:00:00","analysis_time":"2025-12-09 05:29:17"}]}
+2025-12-09 16:38:37,132 - INFO - TELEGRAM MESSAGE:
+Aurora Watch in effect (next 48h).
+            Expected level of activity: 6
+
+            A CME is expected to arrive early on UT day 9-Dec +/- 12 hours and induce G3 geomagnetic storming. Visible aurora may be seen in Tasmania and southern parts of Victoria, South Australia and Western Australia during local night hours.
+2025-12-09 16:38:37,134 - INFO - INCOMING: GET /check-aurora-storm - Status: 200 - Duration: 0.8976s
