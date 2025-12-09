@@ -1,4 +1,5 @@
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -79,20 +80,41 @@ app = FastAPI(title="BOM Space Weather Wrapper", lifespan=lifespan)
 class NotificationService:
     """Handles logic for sending alerts externally."""
 
-    @staticmethod
-    async def send_telegram(message: str):
+    last_sent_path = os.path.join(
+        os.path.dirname(__file__), "logs", "last_sent_content.txt"
+    )
+
+    @classmethod
+    def _get_last_sent_content(cls) -> str:
+        try:
+            with open(cls.last_sent_path, "r") as f:
+                return f.read()
+        except FileNotFoundError:
+            return ""
+
+    @classmethod
+    def _set_last_sent_content(cls, content: str):
+        with open(cls.last_sent_path, "w") as f:
+            f.write(content)
+
+    @classmethod
+    async def send_telegram_if_changed(cls, message: str):
         if not settings.telegram_bot_token:
+            return
+
+        last_content = cls._get_last_sent_content()
+        if message == last_content:
+            logger.info("Telegram alert not sent: content unchanged.")
             return
 
         url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage"
         payload = {"chat_id": settings.telegram_chat_id, "text": message}
 
         try:
-            # We use a standard httpx call here, separate from the BOM client usually
-            # But for simplicity, we can just use a quick one-off or the shared one if base_url allows
             async with httpx.AsyncClient() as tg_client:
                 await tg_client.post(url, json=payload)
                 logger.info("Telegram alert sent successfully.")
+                cls._set_last_sent_content(message)
         except Exception as e:
             logger.error(f"Failed to send Telegram alert: {e}")
 
@@ -210,7 +232,7 @@ class AuroraService:
                 api_comments = watch.get("description", "")
 
             msg = f"AURORA ALERT: {summary}\n\n{api_comments}\n\nCurrent K-Index: {k_data['value']}"
-            asyncio.create_task(NotificationService.send_telegram(msg))
+            asyncio.create_task(NotificationService.send_telegram_if_changed(msg))
 
         return response_model
 
