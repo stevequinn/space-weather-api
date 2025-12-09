@@ -31,6 +31,7 @@ class KIndexData(BaseModel):
     value: int
     threshold_met: bool
     timestamp: Optional[str] = None
+    analysis_time: Optional[str] = None
     error: Optional[str] = None
 
 
@@ -41,6 +42,9 @@ class AuroraEvent(BaseModel):
     valid_until: Optional[str] = None
     cause: Optional[str] = None
     start_date: Optional[str] = None
+    start_time: Optional[str] = None
+    end_date: Optional[str] = None
+    issue_time: Optional[str] = None
 
 
 class AuroraCheckResponse(BaseModel):
@@ -78,7 +82,10 @@ app = FastAPI(title="BOM Space Weather Wrapper", lifespan=lifespan)
 
 
 class NotificationService:
-    """Handles logic for sending alerts externally."""
+    """
+    Handles logic for sending alerts externally.
+    Namespace class and holder of state as every method is a classmethod.
+    """
 
     last_sent_path = os.path.join(
         os.path.dirname(__file__), "logs", "last_sent_content.txt"
@@ -171,6 +178,7 @@ class AuroraService:
                 "value": val,
                 "threshold_met": val >= 5,
                 "timestamp": latest.get("valid_time"),
+                "analysis_time": latest.get("analysis_time"),
             }
         else:
             k_data["error"] = "Failed to fetch K-Index"
@@ -183,6 +191,7 @@ class AuroraService:
                 "description": "description",
                 "valid_until": "valid_until",
                 "lat_band": "lat_band",
+                "start_time": "start_time",
             },
         )
         watch = self._extract_data(
@@ -192,6 +201,9 @@ class AuroraService:
                 "cause": "cause",
                 "description": "comments",
                 "start_date": "start_date",
+                "end_date": "end_date",
+                "issue_time": "issue_time",
+                "lat_band": "lat_band",
             },
         )
         outlook = self._extract_data(
@@ -201,6 +213,9 @@ class AuroraService:
                 "cause": "cause",
                 "description": "comments",
                 "start_date": "start_date",
+                "end_data": "end_date",
+                "issue_time": "issue_time",
+                "lat_band": "lat_band",
             },
         )
 
@@ -225,13 +240,24 @@ class AuroraService:
 
         # 5. Handle Notifications (Fire and Forget task)
         if send_telegram_alert and (is_active or watch):
-            api_comments = ""
-            if alert:
-                api_comments = alert.get("description", "")
-            elif watch:
-                api_comments = watch.get("description", "")
+            source = alert or watch or {}
+            api_comments = source.get("description", "")
+            issue_time = source.get("issue_time", "")
 
-            msg = f"AURORA ALERT: {summary}\n\n{api_comments}\n\nCurrent K-Index: {k_data['value']}"
+            msg_parts = ["AURORA ALERT"]
+
+            if issue_time:
+                msg_parts.append(f"Issued at: {issue_time} UTC")
+
+            k_value = int(k_data["value"])
+            if k_value >= 7:
+                msg_parts.append(f"\n⚠️ HIGH ACTIVITY DETECTED! ⚠️\nk-index: {k_value}")
+
+            msg_parts.extend(
+                [summary, api_comments, "https://www.sws.bom.gov.au/Aurora"]
+            )
+
+            msg = "\n\n".join(filter(None, msg_parts))
             asyncio.create_task(NotificationService.send_telegram_if_changed(msg))
 
         return response_model
@@ -271,7 +297,6 @@ async def check_aurora(
     2. Processes and determines if aurora conditions are met.
     3. Sends Telegram alerts if conditions are met and configured.
     4. Returns a comprehensive response with all relevant data.
-    5. Logs performance metrics for monitoring.
     """
     return await service.get_check_status(send_telegram_alert=send_telegram_alert)
 
