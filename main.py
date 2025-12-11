@@ -243,11 +243,15 @@ class AuroraService:
             source = alert or watch or {}
             api_comments = source.get("description", "")
             issue_time = source.get("issue_time", "")
+            valid_until = source.get("valid_until", "")
 
             msg_parts = ["AURORA ALERT"]
 
             if issue_time:
                 msg_parts.append(f"Issued at: {issue_time} UTC")
+
+            if valid_until:
+                msg_parts.append(f"Valid until: {valid_until} UTC")
 
             k_value = int(k_data["value"])
             if k_value >= 7:
