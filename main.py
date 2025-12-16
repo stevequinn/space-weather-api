@@ -258,7 +258,7 @@ class AuroraService:
                 msg_parts.append(f"\n⚠️ HIGH ACTIVITY DETECTED! ⚠️\nk-index: {k_value}")
 
             msg_parts.extend(
-                [summary, api_comments, "https://www.sws.bom.gov.au/Aurora"]
+                [summary, api_comments, "https://www.sws.bom.gov.au/Aurora", "https://aurora.dotdoing.com"]
             )
 
             msg = "\n\n".join(filter(None, msg_parts))
