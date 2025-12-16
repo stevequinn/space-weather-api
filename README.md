@@ -4,6 +4,8 @@ This is a FastAPI application that serves as a wrapper for the Australian Aurora
 
 It also alerts via telegram bot when auroral activity is high.
 
+The telegram channel is AuroraBottoralis which you can join at https://t.me/AuroraBottoralis.
+
 ## Why?
 
 I wanted to be pinged when an aurora may be visible from my location in Melbourne, Australia so I could go and take silly photos of it. 
