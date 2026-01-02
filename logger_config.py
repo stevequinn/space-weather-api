@@ -19,7 +19,7 @@ def setup_logging():
 
     # Handler 1: Write to file (rotate after 5MB)
     # if on vercel then do not log to file
-    if os.getenv("VERCEL") == "1":
+    if os.getenv("VERCEL") != "1":
         Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
         log_filename = LOG_DIR / os.getenv("log_file", "bom_wrapper.log")
         file_handler = RotatingFileHandler(
