@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     telegram_bot_token: Optional[str] = None
     telegram_chat_id: Optional[str] = None
     log_file: str = "bom_wrapper.log"
+    log_to_file: str = "1"
     hash_storage_file: Path = Path("last_sent_hash.txt")
     REDIS_URL: Optional[str] = None
 

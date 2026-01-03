@@ -7,10 +7,15 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
 LOG_DIR = BASE_DIR / "logs"
+LOG_TO_FILE = os.getenv("log_to_file", "1") == "1"
 
 
 def setup_logging():
     # Create a custom logger
+    # Don't log httpx and httpcore logs except warnings and above to reduce noise and restrict secrets from being logged
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    
     logger = logging.getLogger("bom_api_wrapper")
     logger.setLevel(logging.INFO)
 
@@ -18,8 +23,8 @@ def setup_logging():
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
     # Handler 1: Write to file (rotate after 5MB)
-    # if on vercel then do not log to file
-    if os.getenv("VERCEL") != "1":
+    # On serverless such as Vercel we may not have write access to file system
+    if LOG_TO_FILE:
         Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
         log_filename = LOG_DIR / os.getenv("log_file", "bom_wrapper.log")
         file_handler = RotatingFileHandler(
