@@ -116,8 +116,9 @@ class NotificationService:
 
         url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage"
         payload = {"chat_id": settings.telegram_chat_id, "text": message}
-
+        
         try:
+            logger.info("Sending Telegram alert...")
             async with httpx.AsyncClient() as tg_client:
                 await tg_client.post(url, json=payload)
                 logger.info("Telegram alert sent successfully.")
