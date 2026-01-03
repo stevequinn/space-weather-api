@@ -9,7 +9,7 @@ from typing import Optional, Dict, Any
 import httpx
 import redis.asyncio as redis
 from fastapi import Depends, FastAPI, HTTPException, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, AliasChoices
 from pydantic_settings import BaseSettings
 
 from logger_config import logger
@@ -40,7 +40,8 @@ class KIndexData(BaseModel):
 class AuroraEvent(BaseModel):
     k_aus: Optional[int] = None
     lat_band: Optional[str] = None
-    description: Optional[str] = Field(None, alias="comments") # Map 'comments' automatically
+    # Map 'comments' to 'description' automatically
+    description: Optional[str] = Field(None, validation_alias=AliasChoices("description", "comments")) 
     valid_until: Optional[str] = None
     cause: Optional[str] = None
     start_date: Optional[str] = None
