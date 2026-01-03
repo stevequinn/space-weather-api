@@ -1,51 +1,50 @@
 import asyncio
-import os
+import hashlib
+import aiofiles
+from abc import ABC, abstractmethod
 from contextlib import asynccontextmanager
-from typing import Optional
+from pathlib import Path
+from typing import Optional, Dict, Any
 
 import httpx
+import redis.asyncio as redis
 from fastapi import Depends, FastAPI, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 
 from logger_config import logger
 
-
-# --- 1. Configuration (Type-Safe) ---
+# --- 1. Configuration ---
 class Settings(BaseSettings):
     bom_api_key: str
     bom_base_url: str
     telegram_bot_token: Optional[str] = None
     telegram_chat_id: Optional[str] = None
     log_file: str = "bom_wrapper.log"
+    hash_storage_file: Path = Path("last_sent_hash.txt")
+    REDIS_URL: Optional[str] = None
 
     class Config:
         env_file = ".env"
 
-
 settings = Settings()
 
-
-# --- 2. Pydantic Models (Data Layer) ---
+# --- 2. Data Models ---
 class KIndexData(BaseModel):
     value: int
     threshold_met: bool
     timestamp: Optional[str] = None
-    analysis_time: Optional[str] = None
     error: Optional[str] = None
-
 
 class AuroraEvent(BaseModel):
     k_aus: Optional[int] = None
     lat_band: Optional[str] = None
-    description: Optional[str] = None
+    description: Optional[str] = Field(None, alias="comments") # Map 'comments' automatically
     valid_until: Optional[str] = None
     cause: Optional[str] = None
     start_date: Optional[str] = None
-    start_time: Optional[str] = None
     end_date: Optional[str] = None
     issue_time: Optional[str] = None
-
 
 class AuroraCheckResponse(BaseModel):
     summary: str
@@ -55,262 +54,227 @@ class AuroraCheckResponse(BaseModel):
     watch: Optional[AuroraEvent] = None
     outlook: Optional[AuroraEvent] = None
 
+# --- 3. Storage Strategies (Redis vs File) ---
+class AsyncStorage(ABC):
+    """Abstract Strategy for storing the message hash."""
+    @abstractmethod
+    async def get(self, key: str) -> Optional[str]: ...
+    @abstractmethod
+    async def set(self, key: str, value: str): ...
 
-# --- 3. Lifespan & State Management ---
-# This dictionary will hold our shared resources (like the HTTP client)
-resources = {}
+class RedisStorage(AsyncStorage):
+    def __init__(self, redis_client: redis.Redis):
+        self.redis = redis_client
 
+    async def get(self, key: str) -> Optional[str]:
+        val = await self.redis.get(key)
+        return val.decode("utf-8") if val else None
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup: Create a single client with a timeout
-    logger.info("Starting up: Initializing HTTP Client...")
-    resources["client"] = httpx.AsyncClient(
-        base_url=settings.bom_base_url,
-        timeout=10.0,
-        headers={"Content-Type": "application/json"},  # Default headers
-    )
-    yield
-    # Shutdown: Clean up resources
-    logger.info("Shutting down: Closing HTTP Client...")
-    await resources["client"].aclose()
+    async def set(self, key: str, value: str):
+        await self.redis.set(key, value)
 
+class FileStorage(AsyncStorage):
+    def __init__(self, file_path: Path):
+        self.file_path = file_path
 
-app = FastAPI(title="BOM Space Weather Wrapper", lifespan=lifespan)
-
-# --- 4. Services (Business Logic Layer) ---
-
-
-class NotificationService:
-    """
-    Handles logic for sending alerts externally.
-    Namespace class and holder of state as every method is a classmethod.
-    """
-
-    last_sent_path = os.path.join(
-        os.path.dirname(__file__), "logs", "last_sent_content.txt"
-    )
-
-    @classmethod
-    def _get_last_sent_content(cls) -> str:
+    async def get(self, key: str) -> Optional[str]:
+        if not self.file_path.exists():
+            return None
         try:
-            with open(cls.last_sent_path, "r") as f:
-                return f.read()
-        except FileNotFoundError:
-            return ""
+            async with aiofiles.open(self.file_path, mode='r') as f:
+                return await f.read()
+        except Exception as e:
+            logger.error(f"File read error: {e}")
+            return None
 
-    @classmethod
-    def _set_last_sent_content(cls, content: str):
-        with open(cls.last_sent_path, "w") as f:
-            f.write(content)
+    async def set(self, key: str, value: str):
+        try:
+            async with aiofiles.open(self.file_path, mode='w') as f:
+                await f.write(value)
+        except Exception as e:
+            logger.error(f"File write error: {e}")
 
-    @classmethod
-    async def send_telegram_if_changed(cls, message: str):
-        if not settings.telegram_bot_token:
+# --- 4. Services ---
+class NotificationService:
+    _HASH_KEY = "last_telegram_message_hash"
+
+    def __init__(self, storage: AsyncStorage):
+        self.storage = storage
+
+    async def send_telegram_if_changed(self, message: str):
+        if not settings.telegram_bot_token or not settings.telegram_chat_id:
+            logger.warning("Telegram not configured.")
             return
 
-        last_content = cls._get_last_sent_content()
-        if message == last_content:
-            logger.info("Telegram alert not sent: content unchanged.")
+        current_hash = hashlib.sha256(message.encode("utf-8")).hexdigest()
+        last_hash = await self.storage.get(self._HASH_KEY)
+
+        if current_hash == last_hash:
+            logger.info("Telegram Alert suppressed: Content unchanged.")
             return
 
         url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage"
         payload = {"chat_id": settings.telegram_chat_id, "text": message}
-        
+
         try:
-            async with httpx.AsyncClient() as tg_client:
-                await tg_client.post(url, json=payload)
-                logger.info("Telegram alert sent successfully.")
-                cls._set_last_sent_content(message)
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(url, json=payload)
+                resp.raise_for_status()
+                logger.info("Telegram alert sent.")
+                await self.storage.set(self._HASH_KEY, current_hash)
         except Exception as e:
             logger.error(f"Failed to send Telegram alert: {e}")
 
-
 class AuroraService:
-    """Encapsulates BOM interaction logic."""
-
-    def __init__(self, client: httpx.AsyncClient):
+    def __init__(self, client: httpx.AsyncClient, notifier: NotificationService):
         self.client = client
+        self.notifier = notifier
 
-    async def _fetch(self, endpoint: str, payload: dict) -> dict | Exception:
-        """Internal helper to fetch data safely."""
-        # Inject API Key automatically
-        final_payload = {**payload, "api_key": settings.bom_api_key}
-
+    async def _fetch(self, endpoint: str, payload: dict = None) -> Dict | None:
+        """Generic safe fetcher."""
+        final_payload = {**(payload or {}), "api_key": settings.bom_api_key}
         try:
-            logger.info(f"FETCH: {self.client.base_url}{endpoint}")
             resp = await self.client.post(endpoint, json=final_payload)
             resp.raise_for_status()
-            return resp.json()
+            data = resp.json().get("data")
+            return data[0] if data and isinstance(data, list) else None
         except Exception as e:
-            logger.error(f"Error fetching {endpoint}: {str(e)}")
-            return e
-
-    def _extract_data(
-        self, response: dict | BaseException, field_map: dict
-    ) -> Optional[dict]:
-        """Maps BOM response to our clean dict structure."""
-        if isinstance(response, BaseException) or not response.get("data"):
+            logger.error(f"Fetch failed for {endpoint}: {e}")
             return None
 
-        item = response["data"][0]
-        return {target: item.get(source) for target, source in field_map.items()}
+    def _map_event(self, raw_data: Optional[Dict], model: Any) -> Any:
+        """Generic mapper using Pydantic aliases."""
+        return model(**raw_data) if raw_data else None
 
-    async def get_check_status(self, send_telegram_alert: bool) -> AuroraCheckResponse:
-        # 1. Parallel Fetching
+    async def get_check_status(self, send_alert: bool) -> AuroraCheckResponse:
+        # 1. Parallel Fetch
         results = await asyncio.gather(
             self._fetch("get-k-index", {"options": {"location": "Australian region"}}),
-            self._fetch("get-aurora-alert", {}),
-            self._fetch("get-aurora-watch", {}),
-            self._fetch("get-aurora-outlook", {}),
-            return_exceptions=True,
+            self._fetch("get-aurora-alert"),
+            self._fetch("get-aurora-watch"),
+            self._fetch("get-aurora-outlook"),
+            return_exceptions=True
+        )
+        
+        # Handle exceptions in gather results safely
+        clean_results = [r if not isinstance(r, BaseException) else None for r in results]
+        raw_k, raw_alert, raw_watch, raw_outlook = clean_results
+
+        # 2. Process Data
+        k_val = int(raw_k.get("index", 0)) if raw_k else 0
+        k_data = KIndexData(
+            value=k_val,
+            threshold_met=(k_val >= 5),
+            timestamp=raw_k.get("valid_time") if raw_k else None,
+            error="Failed to fetch" if raw_k is None else None
         )
 
-        # Unpack results (gather ensures order matches input)
-        raw_k, raw_alert, raw_watch, raw_outlook = results
+        alert = self._map_event(raw_alert, AuroraEvent)
+        watch = self._map_event(raw_watch, AuroraEvent)
+        outlook = self._map_event(raw_outlook, AuroraEvent)
 
-        # 2. Process K-Index
-        k_data = {"value": 0, "threshold_met": False, "error": None}
-        if not isinstance(raw_k, BaseException) and raw_k.get("data"):
-            latest = raw_k["data"][0]
-            val = int(latest.get("index", 0))
-            k_data = {
-                "value": val,
-                "threshold_met": val >= 5,
-                "timestamp": latest.get("valid_time"),
-                "analysis_time": latest.get("analysis_time"),
-            }
-        else:
-            k_data["error"] = "Failed to fetch K-Index"
-
-        # 3. Process Events
-        alert = self._extract_data(
-            raw_alert,
-            {
-                "k_aus": "k_aus",
-                "description": "description",
-                "valid_until": "valid_until",
-                "lat_band": "lat_band",
-                "start_time": "start_time",
-            },
-        )
-        watch = self._extract_data(
-            raw_watch,
-            {
-                "k_aus": "k_aus",
-                "cause": "cause",
-                "description": "comments",
-                "start_date": "start_date",
-                "end_date": "end_date",
-                "issue_time": "issue_time",
-                "lat_band": "lat_band",
-            },
-        )
-        outlook = self._extract_data(
-            raw_outlook,
-            {
-                "k_aus": "k_aus",
-                "cause": "cause",
-                "description": "comments",
-                "start_date": "start_date",
-                "end_data": "end_date",
-                "issue_time": "issue_time",
-                "lat_band": "lat_band",
-            },
-        )
-
-        # 4. Logic & Alerting
-        is_active = k_data["threshold_met"] or (alert is not None)
-
+        # 3. Logic
+        is_active = k_data.threshold_met or (alert is not None)
+        
         summary = "No significant activity."
         if is_active:
-            summary = f"Aurora Likely! (K-Index: {k_data['value']})"
+            summary = f"Aurora Likely! (K-Index: {k_data.value})"
         elif watch:
             summary = "Aurora Watch in effect (next 48h)"
 
-        # Construct Response Object
-        response_model = AuroraCheckResponse(
-            summary=summary,
-            active=is_active,
-            k_index=KIndexData(**k_data),
-            alert=AuroraEvent(**alert) if alert else None,
-            watch=AuroraEvent(**watch) if watch else None,
-            outlook=AuroraEvent(**outlook) if outlook else None,
+        # 4. Notify (Background Task)
+        if send_alert and (is_active or watch):
+            msg = self._build_alert_message(summary, k_data.value, alert or watch)
+            asyncio.create_task(self.notifier.send_telegram_if_changed(msg))
+
+        return AuroraCheckResponse(
+            summary=summary, active=is_active, k_index=k_data,
+            alert=alert, watch=watch, outlook=outlook
         )
 
-        # 5. Handle Notifications (Fire and Forget task)
-        if send_telegram_alert and (is_active or watch):
-            source = alert or watch or {}
-            api_comments = source.get("description", "")
-            issue_time = source.get("issue_time", "")
-            valid_until = source.get("valid_until", "")
+    def _build_alert_message(self, summary: str, k_val: int, event: AuroraEvent) -> str:
+        lines = ["AURORA ALERT"]
+        if event:
+            if event.issue_time: lines.append(f"Issued: {event.issue_time} UTC")
+            if event.valid_until: lines.append(f"Valid until: {event.valid_until} UTC")
+        
+        if k_val >= 7:
+            lines.append(f"\n⚠️ HIGH ACTIVITY (K-{k_val}) ⚠️")
+        
+        lines.append(summary)
+        if event and event.description: lines.append(event.description)
+        lines.extend(["https://www.sws.bom.gov.au/Aurora", "https://aurora.dotdoing.com"])
+        
+        return "\n\n".join(lines)
 
-            msg_parts = ["AURORA ALERT"]
+# --- 5. Application Lifecycle ---
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Startup: Initializing resources...")
+    
+    # 1. HTTP Client
+    client = httpx.AsyncClient(
+        base_url=settings.bom_base_url, 
+        timeout=10.0, 
+        headers={"Content-Type": "application/json"}
+    )
+    
+    # 2. Storage Backend Selection
+    redis_client = None
+    storage: AsyncStorage
+    
+    if settings.REDIS_URL:
+        try:
+            redis_client = redis.from_url(settings.REDIS_URL)
+            await redis_client.ping()
+            storage = RedisStorage(redis_client)
+            logger.info("Storage: Redis connected.")
+        except Exception as e:
+            logger.error(f"Redis connection failed: {e}. Falling back to File.")
+            storage = FileStorage(settings.hash_storage_file)
+    else:
+        logger.info("Storage: using local file system.")
+        storage = FileStorage(settings.hash_storage_file)
 
-            if issue_time:
-                msg_parts.append(f"Issued at: {issue_time} UTC")
+    # 3. Dependency Injection Container
+    notifier = NotificationService(storage)
+    app.state.aurora_service = AuroraService(client, notifier)
 
-            if valid_until:
-                msg_parts.append(f"Valid until: {valid_until} UTC")
+    yield
 
-            k_value = int(k_data["value"])
-            if k_value >= 7:
-                msg_parts.append(f"\n⚠️ HIGH ACTIVITY DETECTED! ⚠️\nk-index: {k_value}")
+    logger.info("Shutdown: cleaning up...")
+    await client.aclose()
+    if redis_client:
+        await redis_client.close()
 
-            msg_parts.extend(
-                [summary, api_comments, "https://www.sws.bom.gov.au/Aurora", "https://aurora.dotdoing.com"]
-            )
-
-            msg = "\n\n".join(filter(None, msg_parts))
-            asyncio.create_task(NotificationService.send_telegram_if_changed(msg))
-
-        return response_model
-
-
-# --- 5. Dependencies ---
-def get_aurora_service() -> AuroraService:
-    """Dependency injection for the service."""
-    if "client" not in resources:
-        raise HTTPException(status_code=503, detail="Client not initialized")
-    return AuroraService(resources["client"])
-
+app = FastAPI(title="BOM Space Weather Wrapper", lifespan=lifespan)
 
 # --- 6. Endpoints ---
-
-
 @app.middleware("http")
 async def performance_logger(request: Request, call_next):
     start = asyncio.get_event_loop().time()
     response = await call_next(request)
     duration = asyncio.get_event_loop().time() - start
-    logger.info(
-        f"{request.method} {request.url.path} - {response.status_code} - {duration:.4f}s"
-    )
+    logger.info(f"{request.method} {request.url.path} - {response.status_code} - {duration:.4f}s")
     return response
 
+async def get_service(request: Request) -> AuroraService:
+    """Dependency Provider"""
+    if not hasattr(request.app.state, "aurora_service"):
+         raise HTTPException(status_code=503, detail="Service not initialized")
+    return request.app.state.aurora_service
 
 @app.get("/check-aurora-storm", response_model=AuroraCheckResponse)
 async def check_aurora(
     send_telegram_alert: bool = False,
-    service: AuroraService = Depends(get_aurora_service),
+    service: AuroraService = Depends(get_service),
 ):
-    """
-    Optimized endpoint that delegates logic to AuroraService.
-    Checks for aurora storm conditions and returns structured data.
-    1. Fetches K-Index, Aurora Alerts, Watches, and Outlooks in parallel.
-    2. Processes and determines if aurora conditions are met.
-    3. Sends Telegram alerts if conditions are met and configured.
-    4. Returns a comprehensive response with all relevant data.
-    """
-    return await service.get_check_status(send_telegram_alert=send_telegram_alert)
-
+    return await service.get_check_status(send_alert=send_telegram_alert)
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "client_ready": "client" in resources}
-
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8200)
